@@ -1,0 +1,12 @@
+"Phrases"
+{
+    "unique_chat"
+    {
+        "en"        "That chat message isn't very unique."
+    }
+    "unique_chat_time"
+    {
+        "#format"    "{1:d}"
+        "en"        "You may say that chat message again in {1} second(s)."
+    }
+}
