@@ -20,16 +20,13 @@ public Plugin myinfo = {
 
 public void OnPluginStart() {
     LoadTranslations("UniqueChat.phrases");
-    CreateConVar("sm_uniquechat_version", PLUGIN_VERSION, "Unique Chat - Prevents players from spamming chat messages that are not unqiue.");
+    CreateConVar("sm_uniquechat_version", PLUGIN_VERSION, "Unique Chat - Prevents players from spamming chat messages that are not unqiue.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
     cDisplay = CreateConVar("sm_uniquechat_display", "1", "Display a chat message, 0 - Off, 1 - Telling the message is redundant, 2 - Displays the time before they can say it again.");
     cCacheTime = CreateConVar("sm_uniquechat_time", "120", "The maximum amount of time to store a chat message, 0 to disable time checking");
     cStoreMax = CreateConVar("sm_uniquechat_max", "60", "The maximum amount of chat messages to store");
     cIgnoreFlag = hookConvar(CreateConVar("sm_uniquechat_ignoreflag", "b"), IgnoreFlagChanged);
     checkIgnoreFlag();
-    for(int client = 1; client <= MaxClients; client++) {
-        mapChatLookup[client] = null;
-        cacheChatCount[client] = 0;
-    }
+    AutoExecConfig(true, "UniqueChat");
 }
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] message) {
