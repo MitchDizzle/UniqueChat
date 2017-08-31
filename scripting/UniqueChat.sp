@@ -23,15 +23,16 @@ public void OnPluginStart() {
     CreateConVar("sm_uniquechat_version", PLUGIN_VERSION, "Unique Chat - Prevents players from spamming chat messages that are not unqiue.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
     cDisplay = CreateConVar("sm_uniquechat_display", "1", "Display a chat message, 0 - Off, 1 - Telling the message is redundant, 2 - Displays the time before they can say it again.");
     cCacheTime = CreateConVar("sm_uniquechat_time", "120", "The maximum amount of time to store a chat message, 0 to disable time checking");
-    cStoreMax = CreateConVar("sm_uniquechat_max", "60", "The maximum amount of chat messages to store");
-    cIgnoreFlag = hookConvar(CreateConVar("sm_uniquechat_ignoreflag", "b"), IgnoreFlagChanged);
+    cStoreMax = CreateConVar("sm_uniquechat_max", "60", "The maximum amount of chat messages to store in the cache");
+    cIgnoreFlag = CreateConVar("sm_uniquechat_ignoreflag", "b", "If the user has this flag then they are ignored from any checks. -1 - Ignore every one (Disables this plugin), 0 - Ignores no one."); 
+    cIgnoreFlag.AddChangeHook(IgnoreFlagChanged);
     checkIgnoreFlag();
     AutoExecConfig(true, "UniqueChat");
 }
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] message) {
-    if(client > 1 && client <= MaxClients && (GetUserFlagBits(client) & flagBits)) {
-        //Ignore non-players and admins.
+    if(client < 1 || client > MaxClients || flagBits == -1 || (flagBits > 0 && (GetUserFlagBits(client) & flagBits || GetUserFlagBits(client) & ADMFLAG_ROOT))) {
+        //Ignore non-players and admins with the ignore flag.
         return Plugin_Continue;
     }
     
@@ -133,15 +134,21 @@ public void OnPlayerDisconnect(int client) {
 }
 
 public void IgnoreFlagChanged(ConVar convar, const char[] oldValue, const char[] newValue) {
-    flagBits = ReadFlagString(newValue);
+    checkIgnoreFlagString(newValue);
 }
 
 public void checkIgnoreFlag() {
     char value[16];
     cIgnoreFlag.GetString(value, sizeof(value));
-    flagBits = ReadFlagString(value);
+    checkIgnoreFlagString(value);
 }
 
-stock ConVar hookConvar(ConVar cvar, ConVarChanged callback) { 
-    return cvar;
+public checkIgnoreFlagString(const char[] value) {
+    if(StrEqual(value, "-1") || StrEqual(value, "0")) {
+        flagBits = StringToInt(value);
+    } else if(StrEqual(value, "")) {
+        flagBits = 0;
+    } else {
+        flagBits = ReadFlagString(value);
+    }
 }
