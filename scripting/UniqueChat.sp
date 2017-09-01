@@ -9,7 +9,7 @@ ConVar cStoreMax;
 ConVar cIgnoreFlag;
 int flagBits;
 
-#define PLUGIN_VERSION "1.0.0"
+#define PLUGIN_VERSION "1.0.1"
 public Plugin myinfo = {
     name = "Unique Chat",
     author = "MitchDizzle",
@@ -85,7 +85,7 @@ public void addMessageToCache(int client, const char[] message) {
         if(expiredTime != 0) {
             //Method 1: Check all messages and remove expired ones.
             int calcedTime = currTime - expiredTime;
-            for(int i = 0; i <= snapshot.Length; i++) {
+            for(int i = 0; i < snapshot.Length; i++) {
                 timestamp = 0;
                 snapshot.GetKey(i, tempBuffer, sizeof(tempBuffer));
                 if(mapChatLookup[client].GetValue(tempBuffer,timestamp)) {
@@ -105,7 +105,7 @@ public void addMessageToCache(int client, const char[] message) {
             //So the real question is: Which is faster, StringMaps or ArrayLists?
             int lowestTimeStamp = -1;
             int lowestEntry = -1;
-            for(int i = 0; i <= snapshot.Length; i++) {
+            for(int i = 0; i < snapshot.Length; i++) {
                 timestamp = -1;
                 snapshot.GetKey(i, tempBuffer, sizeof(tempBuffer));
                 if(mapChatLookup[client].GetValue(tempBuffer,timestamp) && timestamp > 0) {
