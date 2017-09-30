@@ -7,9 +7,10 @@ ConVar cDisplay;
 ConVar cCacheTime;
 ConVar cStoreMax;
 ConVar cIgnoreFlag;
+ConVar cIgnoreChatTriggers;
 int flagBits;
 
-#define PLUGIN_VERSION "1.0.1"
+#define PLUGIN_VERSION "1.1.0"
 public Plugin myinfo = {
     name = "Unique Chat",
     author = "MitchDizzle",
@@ -24,7 +25,8 @@ public void OnPluginStart() {
     cDisplay = CreateConVar("sm_uniquechat_display", "1", "Display a chat message, 0 - Off, 1 - Telling the message is redundant, 2 - Displays the time before they can say it again.");
     cCacheTime = CreateConVar("sm_uniquechat_time", "120", "The maximum amount of time to store a chat message, 0 to disable time checking");
     cStoreMax = CreateConVar("sm_uniquechat_max", "60", "The maximum amount of chat messages to store in the cache");
-    cIgnoreFlag = CreateConVar("sm_uniquechat_ignoreflag", "b", "If the user has this flag then they are ignored from any checks. -1 - Ignore every one (Disables this plugin), 0 - Ignores no one."); 
+    cIgnoreFlag = CreateConVar("sm_uniquechat_ignoreflag", "b", "If the user has this flag then they are ignored from any checks. -1 - Ignore every one (Disables this plugin), 0 - Ignores no one.");
+    cIgnoreChatTriggers = CreateConVar("sm_uniquechat_ignorechattriggers", "0", "Ignore Chat Triggers (like !motd etc)");
     cIgnoreFlag.AddChangeHook(IgnoreFlagChanged);
     checkIgnoreFlag();
     AutoExecConfig(true, "UniqueChat");
@@ -33,6 +35,10 @@ public void OnPluginStart() {
 public Action OnClientSayCommand(int client, const char[] command, const char[] message) {
     if(client < 1 || client > MaxClients || flagBits == -1 || (flagBits > 0 && (GetUserFlagBits(client) & flagBits || GetUserFlagBits(client) & ADMFLAG_ROOT))) {
         //Ignore non-players and admins with the ignore flag.
+        return Plugin_Continue;
+    }
+    
+    if(IsChatTrigger() && cIgnoreChatTriggers.BoolValue) {
         return Plugin_Continue;
     }
     
