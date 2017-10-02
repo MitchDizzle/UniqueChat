@@ -10,7 +10,7 @@ ConVar cIgnoreFlag;
 ConVar cIgnoreChatTriggers;
 int flagBits;
 
-#define PLUGIN_VERSION "1.1.1"
+#define PLUGIN_VERSION "1.1.2"
 public Plugin myinfo = {
     name = "Unique Chat",
     author = "MitchDizzle",
@@ -33,7 +33,7 @@ public void OnPluginStart() {
 }
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] message) {
-    if(client < 1 || client > MaxClients || flagBits == -1 || (flagBits > 0 && (GetUserFlagBits(client) & flagBits || GetUserFlagBits(client) & ADMFLAG_ROOT))) {
+    if(client < 1 || client > MaxClients || !IsClientInGame(client) || flagBits == -1 || (flagBits > 0 && (GetUserFlagBits(client) & flagBits || GetUserFlagBits(client) & ADMFLAG_ROOT))) {
         //Ignore non-players and admins with the ignore flag.
         return Plugin_Continue;
     }
